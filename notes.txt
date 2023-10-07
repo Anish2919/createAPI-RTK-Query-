@@ -1,0 +1,3 @@
+createApi: 
+createApi is the core of RTK Query's functionality. It allows you to define set of 'endpoints' that describes how to retrive data from backend APIs and other async sources, including the configuration of how to fetch and transform data.  It generates an "API slice" structure that contains Redux logic (and optionally React hooks) that encapsulate the data fetching and caching process for you.
+

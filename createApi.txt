@@ -1,0 +1,93 @@
+# global.interface.ts 
+export interface Product {
+  id: number; 
+  title: string; 
+  description: string; 
+  price: number; 
+  discountPercentage: number; 
+  rating: number;  
+  stock: number; 
+  barnd: string; 
+  category: string; 
+  thumbnail: string; 
+  images: Array<string>; 
+} 
+ 
+export type allProductResponse = {
+    products: Product[], 
+    total: number, 
+    skip: number, 
+    limit: number
+} 
+
+# features/apiSlice.ts
+import {Product} from '../interface/global.interface'; 
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'; 
+import type {AllProductResponse} from '../interface/global.interface'; 
+
+export const productsApi = createApi({
+  reducerPath: "productApi",
+  baseQuery: fetchBaseQuery({baseUrl:" https://dummyjson.com/"}), 
+  endpoints: (builder) => ({
+    getAllProducts: builder.query<AllProductResponse, void>({
+      query: () => "products", 
+    }),
+    getProduct: builder.query<Product[], string>({
+      query: (product) => `products/search?q=${product}`, 
+    })
+  })
+}); 
+
+
+export const {useGetAllProductsQuery, useGetProductQuery} = productsApi; 
+
+
+# index.ts 
+note: We'll require ApiProvider from reduxjs/toolkit/query/react and provide api = {createApi}. 
+
+import * as React from "react";
+import { render } from "react-dom";
+import "./styles.css";
+import {Data} from '../src/components/Data';   
+import {productsApi} from '../src/features/apiSlice.ts'; 
+
+// will require apiProvider 
+import {ApiProvider} from '@reduxjs/toolkit/query/react'; 
+function App() {
+  return (
+    <>
+    <ApiProvider api={productsApi}>
+      <h1>Hello World</h1>
+      <Data/> 
+    </ApiProvider>
+    </>
+  );
+}
+
+const rootElement = document.getElementById("root");
+render(<App />, rootElement);
+ 
+# Data.tsx 
+import * as React from 'react'; 
+import { useGetAllProductsQuery, useGetProductQuery } from '../features/apiSlice';
+import {Product} from "../interface/global.interface"; 
+
+export const Data = () => {
+  const {data: getAllProducts} = useGetAllProductsQuery(); 
+  const {data: getProduct, isLoading, isError, error, status} = useGetProductQuery('iphone');  
+  console.log(getAllProducts); 
+  if(isLoading) return <h3>Loading...</h3>; 
+  return (
+    <> 
+      <h3> Data: </h3>
+      { getAllProducts.products.map((product) => (
+        <>
+        <div style={{display: "block"}}>
+          <h3 style={{display:"inline", marginRight: "20px",}}>{product.title}</h3>
+          <p style={{display:"inline"}}>{product.price}</p>
+        </div>
+        </>
+      )) }
+    </> 
+  )
+}
